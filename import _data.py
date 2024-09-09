@@ -1,7 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
-from db.movie_app_db import Movie, Genre, Keyword, Studio, Person  # Import relevant models
+from db.movie_app_db import Movie, Genre, Keyword, Studio, Person, MovieGenre, MovieKeyword, MovieCredit, MovieStudio
+                            
 
 # Connect to the SQLite database
 engine = create_engine('sqlite:///movie_app.db')
@@ -30,7 +31,8 @@ for index, row in movie_data.iterrows():
         movie_name=row['title'],
         movie_release_date=pd.to_datetime(row['release_date']),
         movie_summary=row['overview']
-    )
+    )   
+    
     session.add(movie)
     
     # Process and add genres
@@ -38,28 +40,39 @@ for index, row in movie_data.iterrows():
         genres = row['genres'].split('-')
         for genre_name in genres:
             genre = get_or_create(session, Genre, genre_name=genre_name.strip())
-            movie.genres.append(genre)
-    
+            get_or_create(session, MovieGenre, 
+                          movie_id = movie.movie_id,
+                          genre_id = genre.genre_id)                        
+            
     # Process and add keywords
     if pd.notna(row['keywords']):
         keywords = row['keywords'].split('-')
         for keyword_name in keywords:
             keyword = get_or_create(session, Keyword, keyword_name=keyword_name.strip())
-            movie.keywords.append(keyword)
+            get_or_create(session, MovieKeyword, 
+                          movie_id = movie.movie_id,
+                          keyword_id = keyword.keyword_id)
     
     # Process and add studios (production companies)
     if pd.notna(row['production_companies']):
         studios = row['production_companies'].split('-')
         for studio_name in studios:
             studio = get_or_create(session, Studio, studio_name=studio_name.strip())
-            movie.studios.append(studio)
-    
+            get_or_create(session, MovieStudio, 
+                          movie_id = movie.movie_id,
+                          studio_id = studio.studio_id)
+                
     # Process and add credits
     if pd.notna(row['credits']):
-        credits = row['credits'].split('-')
-        for person_name in credits:
-            person = get_or_create(session, Person, name=person_name.strip())
-            movie.credits.append(person)
+        movie_credits = row['credits'].split('-')
+        for person_name in movie_credits:
+            person = get_or_create(session, Person, name=person_name.strip())                        
+            get_or_create(session, MovieCredit, 
+                          movie_id = movie.movie_id,
+                          person_id = person.person_id)
+                        
+
+    
 
     # Commit the movie and relationships
     session.commit()

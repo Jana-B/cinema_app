@@ -7,9 +7,9 @@ Base = declarative_base()
 class Person(Base):
     __tablename__ = 'person'
     person_id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    person_birthdate = Column(Date, nullable=False)
-    home_country = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
+    person_birthdate = Column(Date, nullable=True)
+    home_country = Column(String, nullable=True)
 
     # Relationship with MovieCredit
     credits = relationship('MovieCredit', back_populates='person')
@@ -50,29 +50,29 @@ class WatchHistory(Base):
 class Genre(Base):
     __tablename__ = 'genre'
     genre_id = Column(Integer, primary_key=True)
-    genre_name = Column(String, nullable=False)
+    genre_name = Column(String, nullable=False, unique=True) 
     
     genres = relationship('MovieGenre', back_populates='genre')
 
 class Keyword(Base):
     __tablename__ = 'keyword'
     keyword_id = Column(Integer, primary_key=True)
-    keyword_name = Column(String, nullable=False)
+    keyword_name = Column(String, nullable=False, unique=True)
     
     keywords = relationship('MovieKeyword', back_populates='keyword')
 
 class Studio(Base):
     __tablename__ = 'studio'
     studio_id = Column(Integer, primary_key=True)
-    studio_name = Column(String, nullable=False)
+    studio_name = Column(String, nullable=False, unique=True)
     
     studios = relationship('MovieStudio', back_populates='studio')
 
 class Movie(Base):
     __tablename__ = 'movie'
     movie_id = Column(Integer, primary_key=True)
-    movie_name = Column(String, nullable=False)
-    movie_release_date = Column(Date, nullable=False)
+    movie_name = Column(String, nullable=False, unique=False)
+    movie_release_date = Column(Date, nullable=True)
     movie_summary = Column(String, nullable=True)
 
     # Relationships with Mylist, WatchHistory
