@@ -54,6 +54,13 @@ class Genre(Base):
 
     # One-to-many relationship with Movie
     movies = relationship('Movie', back_populates='genre')
+class Keyword(Base):
+    __tablename__ = 'keyword'
+    keyword_id = Column(Integer, primary_key=True)
+    keyword_name = Column(String, nullable=False)
+
+    # One-to-many relationship with Movie
+    movies = relationship('Movie', back_populates='keyword')
 
 class Studio(Base):
     __tablename__ = 'studio'
@@ -69,23 +76,48 @@ class Movie(Base):
     movie_name = Column(String, nullable=False)
     movie_release_date = Column(Date, nullable=False)
     movie_summary = Column(String, nullable=True)
-    genre_id = Column(Integer, ForeignKey('genre.genre_id'), nullable=False)
-    studio_id = Column(Integer, ForeignKey('studio.studio_id'), nullable=False)
 
-    # Relationships with Genre, Studio, Mylist, WatchHistory
-    genre = relationship('Genre', back_populates='movies')
-    studio = relationship('Studio', back_populates='movies')
+    # Relationships with Mylist, WatchHistory
     mylist = relationship('Mylist', back_populates='movie')
     watch_history = relationship('WatchHistory', back_populates='movie')
 
-    # Relationship with MovieParticipation
-    participations = relationship('MovieParticipation', back_populates='movie')
+    # Relationship with MovieCredit, MovieKeyword, MovieStudio, MovieGenre
+    credits = relationship('MovieCredit', back_populates='movie')
+    keywords = relationship('MovieKeyword', back_populates='movie')
+    studios = relationship('MovieStudio', back_populates='movie')
+    genres = relationship('MovieGenre', back_populates='movie')
 
-class MovieParticipation(Base):
-    __tablename__ = 'movie_participation'
+class MovieCredit(Base):
+    __tablename__ = 'movie_credit'
     movie_id = Column(Integer, ForeignKey('movie.movie_id'), primary_key=True)
     person_id = Column(Integer, ForeignKey('person.person_id'), primary_key=True)
 
     # Relationships
-    movie = relationship('Movie', back_populates='participations')
-    person = relationship('Person', back_populates='movie_participations')
+    movie = relationship('Movie', back_populates='credits')
+    person = relationship('Person', back_populates='movie_credits')
+    
+class MovieKeyword(Base):
+    __tablename__ = 'movie_keyword'
+    movie_id = Column(Integer, ForeignKey('movie.movie_id'), primary_key=True)
+    keyword_id = Column(Integer, ForeignKey('keyword.keyword_id'), primary_key=True)
+
+    # Relationships
+    movie = relationship('Movie', back_populates='credits')
+    keyword = relationship('Keyword', back_populates='movie_credits')
+
+class MovieStudio(Base):
+    __tablename__ = 'movie_studio'
+    movie_id = Column(Integer, ForeignKey('movie.movie_id'), primary_key=True)
+    studio_id = Column(Integer, ForeignKey('studio.studio_id'), primary_key=True)
+
+    # Relationships
+    movie = relationship('Movie', back_populates='credits')
+    studio = relationship('Studio', back_populates='movie_studio')
+class MovieGenre(Base):
+    __tablename__ = 'movie_genre'
+    movie_id = Column(Integer, ForeignKey('movie.movie_id'), primary_key=True)
+    genre_id = Column(Integer, ForeignKey('genre.genre_id'), primary_key=True)
+
+    # Relationships
+    movie = relationship('Movie', back_populates='credits')
+    genre = relationship('Genre', back_populates='movie_genre')
