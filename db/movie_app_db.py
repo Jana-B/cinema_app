@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, Float, Boolean
 from sqlalchemy.orm import relationship, declarative_base
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine,  Table
 
 Base = declarative_base()
 
@@ -76,6 +76,7 @@ class Movie(Base):
     movie_name = Column(String, nullable=False)
     movie_release_date = Column(Date, nullable=False)
     movie_summary = Column(String, nullable=True)
+    
 
     # Relationships with Mylist, WatchHistory
     mylist = relationship('Mylist', back_populates='movie')
@@ -121,3 +122,7 @@ class MovieGenre(Base):
     # Relationships
     movie = relationship('Movie', back_populates='credits')
     genre = relationship('Genre', back_populates='movie_genre')
+
+
+# class MovieFullDetails(Base):
+#     __table__ = Table('movie_full_details', Base.metadata, autoload_with=create_engine('sqlite:///movie_app.db'))
