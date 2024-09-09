@@ -85,7 +85,6 @@ class MovieParticipation(Base):
     __tablename__ = 'movie_participation'
     movie_id = Column(Integer, ForeignKey('movie.movie_id'), primary_key=True)
     person_id = Column(Integer, ForeignKey('person.person_id'), primary_key=True)
-    role_type = Column(String, nullable=False)
 
     # Relationships
     movie = relationship('Movie', back_populates='participations')
