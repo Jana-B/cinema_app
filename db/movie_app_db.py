@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, Float, Boolean
 from sqlalchemy.orm import relationship, declarative_base
-from sqlalchemy import create_engine,  Table
 
 Base = declarative_base()
 
@@ -121,6 +120,20 @@ class MovieGenre(Base):
     movie = relationship('Movie', back_populates='genres')
     genre = relationship('Genre', back_populates='genres')
 
+class MovieDetails(Base):
+    __tablename__ = 'movie_full_details'
+    
+    # Columns as represented in the view
+    movie_id = Column(Integer, primary_key=True)
+    movie_name = Column(String)
+    movie_release_date = Column(Date)
+    movie_summary = Column(String)
+    credits = Column(String)
+    genres = Column(String)
+    studios = Column(String)
+    keywords = Column(String)
 
-class MovieFullDetails(Base):
-    __table__ = Table('movie_full_details', Base.metadata, autoload_with=create_engine('sqlite:///movie_app.db'))
+    def __repr__(self):
+        return (f"<MovieDetails(movie_id={self.movie_id}, movie_name={self.movie_name}, "
+                f"movie_release_date={self.movie_release_date}, credits={self.credits}, "
+                f"genres={self.genres}, studios={self.studios}, keywords={self.keywords})>")
