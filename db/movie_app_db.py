@@ -122,5 +122,5 @@ class MovieGenre(Base):
     genre = relationship('Genre', back_populates='genres')
 
 
-# class MovieFullDetails(Base):
-#     __table__ = Table('movie_full_details', Base.metadata, autoload_with=create_engine('sqlite:///movie_app.db'))
+class MovieFullDetails(Base):
+    __table__ = Table('movie_full_details', Base.metadata, autoload_with=create_engine('sqlite:///movie_app.db'))
