@@ -17,7 +17,7 @@ class MovieService:
     Service class to handle CRUD operations and queries related to movies, genres, keywords, persons, studios, users, watch histories, and user lists.
     """
 
-    def __init__(self, session):
+    def __init__(self, session=None):
         """
         Initializes the MovieService and establishes a connection to the SQLite database.
         """
