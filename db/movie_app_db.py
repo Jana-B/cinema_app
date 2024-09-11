@@ -12,7 +12,7 @@ class Person(Base):
 
     # Relationship with MovieCredit
     credits = relationship('MovieCredit', back_populates='person')
-    
+            
 class User(Base):
     __tablename__ = 'user'
     user_id = Column(Integer, primary_key=True)
