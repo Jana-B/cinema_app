@@ -5,7 +5,7 @@ Base = declarative_base()
 
 class Person(Base):
     __tablename__ = 'person'
-    person_id = Column(Integer, primary_key=True)
+    person_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False, unique=True)
     person_birthdate = Column(Date, nullable=True)
     home_country = Column(String, nullable=True)
@@ -16,7 +16,7 @@ class Person(Base):
 class User(Base):
     __tablename__ = 'user'
     user_id = Column(Integer, primary_key=True)
-    user_name = Column(String, nullable=False)
+    user_name = Column(String, nullable=False, unique=True)
     user_birthdate = Column(Date, nullable=False)
     password = Column(String, nullable=False)
     e_mail = Column(String, nullable=False)
@@ -48,21 +48,21 @@ class WatchHistory(Base):
 
 class Genre(Base):
     __tablename__ = 'genre'
-    genre_id = Column(Integer, primary_key=True)
+    genre_id = Column(Integer, primary_key=True, autoincrement=True)
     genre_name = Column(String, nullable=False, unique=True) 
     
     genres = relationship('MovieGenre', back_populates='genre')
 
 class Keyword(Base):
     __tablename__ = 'keyword'
-    keyword_id = Column(Integer, primary_key=True)
+    keyword_id = Column(Integer, primary_key=True, autoincrement=True)
     keyword_name = Column(String, nullable=False, unique=True)
     
     keywords = relationship('MovieKeyword', back_populates='keyword')
 
 class Studio(Base):
     __tablename__ = 'studio'
-    studio_id = Column(Integer, primary_key=True)
+    studio_id = Column(Integer, primary_key=True, autoincrement=True)
     studio_name = Column(String, nullable=False, unique=True)
     
     studios = relationship('MovieStudio', back_populates='studio')

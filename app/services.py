@@ -17,13 +17,16 @@ class MovieService:
     Service class to handle CRUD operations and queries related to movies, genres, keywords, persons, studios, users, watch histories, and user lists.
     """
 
-    def __init__(self):
+    def __init__(self, session):
         """
         Initializes the MovieService and establishes a connection to the SQLite database.
         """
-        engine = create_engine(database_path)
-        Session = sessionmaker(bind=engine)
-        self.session = Session()
+        if session:
+            self.session = session
+        else:
+            engine = create_engine(database_path)
+            Session = sessionmaker(bind=engine)
+            self.session = Session()
 
     def to_dataframe(self, object_list: List[BaseModel]) -> pd.DataFrame:
         """
@@ -184,8 +187,9 @@ class MovieService:
 
         Returns:
             Optional[Person]: The Person object with the specified ID, or None if not found.
-        """
-        return self.session.query(Person).get(person_id)
+        """        
+        return self.session.get(Person, person_id)
+
 
     def read_all_persons(self) -> pd.DataFrame:
         """
@@ -253,8 +257,9 @@ class MovieService:
 
         Returns:
             Optional[User]: The User object with the specified ID, or None if not found.
-        """
-        return self.session.query(User).get(user_id)
+        """        
+        return self.session.get(User, user_id)
+
 
     def read_all_users(self) -> pd.DataFrame:
         """
@@ -441,8 +446,9 @@ class MovieService:
 
         Returns:
             Optional[Genre]: The Genre object with the specified ID, or None if not found.
-        """
-        return self.session.query(Genre).get(genre_id)
+        """    
+        return self.session.get(Genre, genre_id)
+
 
     def read_all_genres(self) -> pd.DataFrame:
         """
@@ -500,8 +506,9 @@ class MovieService:
 
         Returns:
             Optional[Keyword]: The Keyword object with the specified ID, or None if not found.
-        """
-        return self.session.query(Keyword).get(keyword_id)
+        """        
+        return self.session.get(Keyword, keyword_id)
+
 
     def read_all_keywords(self) -> pd.DataFrame:
         """
@@ -560,7 +567,8 @@ class MovieService:
         Returns:
             Optional[Studio]: The Studio object with the specified ID, or None if not found.
         """
-        return self.session.query(Studio).get(studio_id)
+        return self.session.get(Studio, studio_id)
+
 
     def read_all_studios(self) -> pd.DataFrame:
         """
@@ -620,8 +628,9 @@ class MovieService:
 
         Returns:
             Optional[Movie]: The Movie object with the specified ID, or None if not found.
-        """
-        return self.session.query(Movie).get(movie_id)
+        """        
+        return self.session.get(Movie, movie_id)
+
 
     def read_all_movies(self) -> pd.DataFrame:
         """
