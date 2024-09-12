@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from services import MovieService  # Ensure MovieService is in movie_service.py or adjust import path
+from app.services.movie import MovieService  # Ensure MovieService is in movie_service.py or adjust import path
 
 # Create an instance of MovieService
 movie_service = MovieService()
