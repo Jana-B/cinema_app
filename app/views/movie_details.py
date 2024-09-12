@@ -20,10 +20,10 @@ def show_movie_details_page(movie_id: int):
             # Display movie details
             st.title(movie["movie_name"])
             st.subheader(f"Release Date: {movie['movie_release_date'].strftime('%Y-%m-%d')}")
-            st.text(f"Genres: {movie['genres']}")
-            st.text(f"Studios: {movie['studios']}")
-            st.text(f"Credits: {movie['credits']}")
-            st.text(f"Keywords: {movie['keywords']}")
+            st.write(f"Genres: {movie['genres']}")
+            st.write(f"Studios: {movie['studios']}")
+            st.write(f"Credits: {movie['credits']}")
+            st.write(f"Keywords: {movie['keywords']}")
             st.write(f"Summary: {movie['movie_summary']}")
         else:
             st.write("No movie details found for the given movie ID.")

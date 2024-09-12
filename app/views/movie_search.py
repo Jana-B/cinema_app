@@ -45,6 +45,7 @@ import streamlit as st
 import pandas as pd
 from app.services.movie import MovieService
 
+
 def show_movie_search_page():
     # Instantiate the MovieService
     movie_service = MovieService()
@@ -72,6 +73,8 @@ def show_movie_search_page():
 
     # Search Button
     if st.button("Search"):
+        st.query_params.page = ''
+        
         # List to hold individual query results
         result_sets = []
 
@@ -102,16 +105,24 @@ def show_movie_search_page():
 
         # Find the intersection of all result sets (common movies across filters)
         if result_sets:
-            # Convert result sets to DataFrames and merge them on 'id'
-            combined_movies = result_sets[0]
-            for result in result_sets[1:]:
-                combined_movies = pd.merge(combined_movies, result, on="id")
-
+            common_movie_ids = set(result_sets[0]['movie_id'])
+    
+            # Intersect the movie_ids with those in the other DataFrames
+            for df in result_sets[1:]:
+                common_movie_ids &= set(df['movie_id'])
+            
+            # Filter each DataFrame in result_sets to keep only the rows with common movie_ids
+            filtered_dfs = [df[df['movie_id'].isin(common_movie_ids)] for df in result_sets]
+            
+            # Combine the filtered DataFrames into one
+            combined_movies = pd.concat(filtered_dfs).drop_duplicates(subset='movie_id')
+    
             # Display Results
             if not combined_movies.empty:
                 for movie in combined_movies.itertuples():
                     movie_details_url = f"/?page=movie_details&movie_id={movie.movie_id}"
-                    st.write(f"[{movie.movie_name}]({movie_details_url}) ({movie.movie_release_date}) {movie.movie_summary}")
+                    st.markdown(f'<a href="{movie_details_url}" target="_self">{movie.movie_name}</a>', unsafe_allow_html=True)
+                    # st.write(f"[{movie.movie_name}]({movie_details_url}) ({movie.movie_release_date}) {movie.movie_summary}")
             else:
                 st.write("No movies found with the selected criteria.")
         else:
