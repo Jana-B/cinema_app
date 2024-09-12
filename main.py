@@ -2,10 +2,6 @@ import streamlit as st
 from app.views import movie_search, movie_details
 
 def main():
-    # Get the query parameters from the URL
-    # query_params = st.experimental_get_query_params()
-    # page = query_params.get("page", ["movie_search"])[0]
-    # movie_id = query_params.get("movie_id", ["movie_search"])[0]
     try:
         page = st.query_params.page
         movie_id = st.query_params.movie_id
@@ -42,6 +38,8 @@ def main():
     if page == "movie_details":
         # integrate movie_id into interface....
         movie_details.show_movie_details_page(movie_id)
+        
+        
 
 if __name__ == "__main__":
     main()
