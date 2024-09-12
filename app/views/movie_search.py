@@ -43,10 +43,7 @@ Dependencies:
 """
 import streamlit as st
 import pandas as pd
-
 from app.services.movie import MovieService
-
-
 
 def show_movie_search_page():
     # Instantiate the MovieService
@@ -60,40 +57,18 @@ def show_movie_search_page():
     # Filters
     st.sidebar.header("Filters")
 
-        # # Release Date Slider
-        # release_date_range = st.sidebar.slider(
-        #     "Release Date",
-        #     min_value=1900,
-        #     max_value=2024,
-        #     value=(2000, 2024),
-        #     step=1
-        # )
-
     # Genre Multi-select
     genres = movie_service.get_distinct_genre_names()
     selected_genres = st.sidebar.multiselect("Genres", genres)
-
-    # # Credits (People involved)
-    # persons = movie_service.get_distinct_person_names()
-    # selected_persons = st.sidebar.multiselect("Credits", persons)
-
-    # # Studio Multi-select
-    # studios = movie_service.get_distinct_studio_names()
-    # selected_studios = st.sidebar.multiselect("Studios", studios)
-
-    # # Keywords Multi-select
-    # keywords = movie_service.get_distinct_keyword_names()
-    # selected_keywords = st.sidebar.multiselect("Keywords", keywords)
 
     # Credits (People involved)    
     selected_persons = st.sidebar.text_input("Persons")
 
     # Studio
-    selected_studios = st.sidebar.text_input("Studiios")
+    selected_studios = st.sidebar.text_input("Studios")
 
     # Keywords
-    selected_keywords = st.sidebar.text_input("Studios")
-
+    selected_keywords = st.sidebar.text_input("Keywords")
 
     # Search Button
     if st.button("Search"):
@@ -115,11 +90,6 @@ def show_movie_search_page():
             movies_by_keyword = movie_service.query_by_keyword(selected_keywords)
             result_sets.append(movies_by_keyword)
 
-        # Apply release date filter
-        # if release_date_range:
-        #     movies_by_release_date = movie_service.query_by_release_date(release_date_range)
-        #     result_sets.append(movies_by_release_date)
-
         # Apply person filter
         if selected_persons:
             movies_by_person = movie_service.query_by_person(selected_persons)
@@ -140,8 +110,8 @@ def show_movie_search_page():
             # Display Results
             if not combined_movies.empty:
                 for movie in combined_movies.itertuples():
-                    movie_detail_url = f"/movie_detail?movie_id={movie.movie_id}"
-                    st.write(f"[{movie.movie_name}]({movie_detail_url}) ({movie.movie_release_date}) ({movie.movie_summary})")
+                    movie_details_url = f"/?page=movie_details&movie_id={movie.movie_id}"
+                    st.write(f"[{movie.movie_name}]({movie_details_url}) ({movie.movie_release_date}) {movie.movie_summary}")
             else:
                 st.write("No movies found with the selected criteria.")
         else:
