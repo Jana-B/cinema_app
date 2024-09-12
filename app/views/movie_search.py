@@ -49,7 +49,7 @@ from app.services.movie import MovieService
 def show_movie_search_page():
     # Instantiate the MovieService    
     st.query_params.clear()
-    st.query_params.page = "movie_search"       
+    st.query_params.page = "movie_search"
     
     movie_service = MovieService()
 
@@ -85,9 +85,11 @@ def show_movie_search_page():
 
             # Display Results
             if not filtered_movies_df.empty:               
-                display_search_result(filtered_movies_df)            
+                display_search_result(filtered_movies_df)      
+            
             else:
                 st.write("No movies found with the selected criteria.")
+    
    
 
 def execute_queries(movie_service, search_query, selected_genres, selected_persons, selected_studios, selected_keywords):
