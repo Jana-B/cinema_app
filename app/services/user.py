@@ -34,6 +34,9 @@ class UserService(Service):
         """        
         return self.session.get(User, user_id)
 
+    def query_by_user_name(self, search_string: str)-> pd.DataFrame:
+        return self.to_dataframe(self.session.query(User).filter(User.user_name == search_string).all())
+
 
     def read_all_users(self) -> pd.DataFrame:
         """
