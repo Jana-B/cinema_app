@@ -9,37 +9,13 @@ import pandas as pd
 from typing import List, Optional, Union
 from pydantic import BaseModel
 
-# Define the path to the SQLite database
-database_path = 'sqlite:///movie_app.db'
+from app.services.base_types import Service
 
-class MovieService:
+
+class MovieService(Service):
     """
     Service class to handle CRUD operations and queries related to movies, genres, keywords, persons, studios, users, watch histories, and user lists.
     """
-
-    def __init__(self, session=None):
-        """
-        Initializes the MovieService and establishes a connection to the SQLite database.
-        """
-        if session:
-            self.session = session
-        else:
-            engine = create_engine(database_path)
-            Session = sessionmaker(bind=engine)
-            self.session = Session()
-
-    def to_dataframe(self, object_list: List[BaseModel]) -> pd.DataFrame:
-        """
-        Converts a list of SQLAlchemy model objects to a pandas DataFrame.
-
-        Args:
-            object_list (List[BaseModel]): List of SQLAlchemy model objects.
-
-        Returns:
-            pd.DataFrame: DataFrame containing the data from the objects.
-        """
-        data = [obj.__dict__ for obj in object_list]
-        return pd.DataFrame(data)
 
     def query_by_title(self, search_string: str, exact_match: bool = False) -> pd.DataFrame:
         """
@@ -232,80 +208,7 @@ class MovieService:
         if person:
             self.session.delete(person)
             self.session.commit()
-
-    # -------- CRUD Operations for User --------
-    def create_user(self, user_name: str, birthdate: str, password: str, e_mail: str):
-        """
-        Creates a new user record.
-
-        Args:
-            user_name (str): The name of the user.
-            birthdate (str): The birthdate of the user.
-            password (str): The password of the user.
-            e_mail (str): The email of the user.
-        """
-        new_user = User(user_name=user_name, user_birthdate=birthdate, password=password, e_mail=e_mail)
-        self.session.add(new_user)
-        self.session.commit()
-
-    def read_user(self, user_id: int) -> Optional[User]:
-        """
-        Retrieves a user record by ID.
-
-        Args:
-            user_id (int): The ID of the user.
-
-        Returns:
-            Optional[User]: The User object with the specified ID, or None if not found.
-        """        
-        return self.session.get(User, user_id)
-
-
-    def read_all_users(self) -> pd.DataFrame:
-        """
-        Retrieves all user records.
-
-        Returns:
-            pd.DataFrame: DataFrame containing all user records.
-        """
-        users = self.session.query(User).all()
-        return self.to_dataframe(users)
-
-    def update_user(self, user_id: int, user_name: Optional[str] = None, birthdate: Optional[str] = None, password: Optional[str] = None, e_mail: Optional[str] = None):
-        """
-        Updates an existing user record.
-
-        Args:
-            user_id (int): The ID of the user to update.
-            user_name (Optional[str]): The new name of the user. Defaults to None.
-            birthdate (Optional[str]): The new birthdate of the user. Defaults to None.
-            password (Optional[str]): The new password of the user. Defaults to None.
-            e_mail (Optional[str]): The new email of the user. Defaults to None.
-        """
-        user = self.read_user(user_id)
-        if user:
-            if user_name:
-                user.user_name = user_name
-            if birthdate:
-                user.user_birthdate = birthdate
-            if password:
-                user.password = password
-            if e_mail:
-                user.e_mail = e_mail
-            self.session.commit()
-
-    def delete_user(self, user_id: int):
-        """
-        Deletes a user record by ID.
-
-        Args:
-            user_id (int): The ID of the user to delete.
-        """
-        user = self.read_user(user_id)
-        if user:
-            self.session.delete(user)
-            self.session.commit()
-
+    
     # -------- CRUD Operations for Mylist --------
     def create_mylist(self, user_id: int, movie_id: int):
         """

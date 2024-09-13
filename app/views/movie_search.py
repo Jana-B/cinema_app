@@ -147,12 +147,20 @@ def intersect_results(result_sets):
     
     common_movie_ids = set(result_sets[0]["movie_id"])
 
+    
+    
     # Intersect the movie_ids with those in the other DataFrames
     for df in result_sets[1:]:
-        common_movie_ids &= set(df["movie_id"])
+        if df.empty:
+            common_movie_ids = set()            
+            return pd.DataFrame()
+        else:
+            common_movie_ids &= set(df["movie_id"])
+  
 
-        # Filter each DataFrame in result_sets to keep only the rows with common movie_ids
-    filtered_dfs = [df[df["movie_id"].isin(common_movie_ids)] for df in result_sets]
+    # Filter each DataFrame in result_sets to keep only the rows with common movie_ids
+    filtered_dfs = [df[df["movie_id"].isin(common_movie_ids)] if not df.empty else df for df in result_sets]
+
 
     # Combine the filtered DataFrames into one
     combined_movies = pd.concat(filtered_dfs).drop_duplicates(subset="movie_id")
