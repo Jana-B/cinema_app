@@ -43,7 +43,12 @@ Dependencies:
 
 import streamlit as st
 import pandas as pd
-from app.services.movie import MovieService
+from app.services.movie import MovieService 
+from app.services.mylist import MylistService 
+from app.services.watchhistory import WatchHistoryService 
+from app.services.user import UserService 
+from datetime import datetime
+
 
 
 def show_movie_search_page():
@@ -84,7 +89,15 @@ def show_movie_search_page():
             filtered_movies_df = intersect_results(result_sets)
 
             # Display Results
-            if not filtered_movies_df.empty:               
+            if not filtered_movies_df.empty: 
+                watch_history_service = WatchHistoryService()
+                mylist_service = MylistService()
+                user_service = UserService()
+                user_name = st.session_state["user_name"]
+                user_id = user_service.get_id_by_name(user_name)
+                
+                filtered_movies_df["is_in_watch_history"] = watch_history_service.is_in_watchhistory(user_id=user_id,movie_ids=filtered_movies_df["movie_id"])["is_in_watch_history"]  
+                filtered_movies_df["is_in_mylist"] = mylist_service.is_in_mylist(user_id=user_id,movie_ids=filtered_movies_df["movie_id"])["is_in_mylist"]          
                 display_search_result(filtered_movies_df)      
             
             else:
@@ -121,6 +134,8 @@ def execute_queries(movie_service, search_query, selected_genres, selected_perso
     return result_sets
 
 def display_search_result(filtered_movies_df):
+    mylist_service = MylistService()
+    watch_history_service = WatchHistoryService()
     # Initialize an empty string to hold the HTML content
     html_content = ""
 
@@ -132,10 +147,33 @@ def display_search_result(filtered_movies_df):
             <h3><a href="{movie_details_url}" target="_self">{movie.movie_name}</a></h3>
             <p><strong>Release Date:</strong> {movie.movie_release_date}</p>
             <p><strong>Summary:</strong> {movie.movie_summary}</p>
-            <hr>
         </div>
         """
+         # Display the checkboxes for "Mylist" and "Watchhistory"
+        is_in_mylist = st.checkbox(f"Add {movie.movie_name} to Mylist", value=movie.is_in_mylist, key=f"mylist_{movie.movie_id}")
+        is_in_watch_history = st.checkbox(f"Add {movie.movie_name} to Watchhistory", value=movie.is_in_watch_history, key=f"watchhistory_{movie.movie_id}")
 
+        # Handle the logic for "Mylist" checkbox
+        if is_in_mylist and not movie.is_in_mylist:
+            # Call the function to add the movie to Mylist
+            mylist_service.create_mylist(user_id=user_id, movie_id=movie.movie_id)
+            st.success(f"Added {movie.movie_name} to your Mylist.")
+        elif not is_in_mylist and movie.is_in_mylist:
+            # Hier könnte man eine Funktion hinzufügen, um den Film aus der Mylist zu entfernen, wenn gewünscht
+            pass
+
+        # Handle the logic for "Watchhistory" checkbox
+        if is_in_watch_history and not movie.is_in_watch_history:
+            # Call the function to add the movie to Watchhistory
+            current_date = datetime.now().strftime('%Y-%m-%d')  # Get the current date as a string
+            watch_history_service.create_watch_history(user_id=user_id, movie_id=movie.movie_id, watch_date=current_date)
+            st.success(f"Added {movie.movie_name} to your Watchhistory.")
+        elif not is_in_watch_history and movie.is_in_watch_history:
+            # Hier könnte man eine Funktion hinzufügen, um den Film aus der Watchhistory zu entfernen, wenn gewünscht
+            pass
+
+        html_content += "<hr>"
+    
     # Display the HTML content in Streamlit
     st.markdown(html_content, unsafe_allow_html=True)
 

@@ -54,3 +54,27 @@ class MylistService(Service):
         if mylist:
             self.session.delete(mylist)
             self.session.commit()
+    
+    def is_in_mylist(self, user_id: int, movie_ids: pd.Series) -> pd.DataFrame:
+        """
+        Ckecks if a series of movies is in mylist.
+
+        Args:
+            user_id (int): The ID of the user.
+            movie_ids (pd.Series): The IDs of the movies.
+        """
+        results = []
+
+        # Iterate over each movie_id in the Series
+        for movie_id in movie_ids:
+            # Query the database to check if the movie is in the user's list
+            movie_in_list = self.session.query(Mylist).filter_by(user_id=user_id, movie_id=movie_id).first() is not None
+            
+            # Append the result as a tuple (movie_id, boolean)
+            results.append((movie_id, movie_in_list))
+
+        # Convert the results into a DataFrame
+        df = pd.DataFrame(results, columns=['movie_id', 'in_mylist'])
+        
+        return df
+        

@@ -33,6 +33,8 @@ class MovieService(Service):
         else:
             search_pattern = f"%{search_string}%"
             return self.to_dataframe(self.session.query(Movie).filter(Movie.movie_name.ilike(search_pattern)).all())
+    
+    
 
     def query_by_genre(self, genre_name: str) -> pd.DataFrame:
         """
@@ -141,66 +143,6 @@ class MovieService(Service):
         return movies_df
 
 
-    # -------- CRUD Operations for Studio --------
-    def create_studio(self, studio_name: str):
-        """
-        Creates a new studio record.
-
-        Args:
-            studio_name (str): The name of the studio.
-        """
-        new_studio = Studio(studio_name=studio_name)
-        self.session.add(new_studio)
-        self.session.commit()
-
-    def read_studio(self, studio_id: int) -> Optional[Studio]:
-        """
-        Retrieves a studio record by ID.
-
-        Args:
-            studio_id (int): The ID of the studio.
-
-        Returns:
-            Optional[Studio]: The Studio object with the specified ID, or None if not found.
-        """
-        return self.session.get(Studio, studio_id)
-
-
-    def read_all_studios(self) -> pd.DataFrame:
-        """
-        Retrieves all studio records.
-
-        Returns:
-            pd.DataFrame: DataFrame containing all studio records.
-        """
-        studios = self.session.query(Studio).all()
-        return self.to_dataframe(studios)
-
-    def update_studio(self, studio_id: int, studio_name: str):
-        """
-        Updates an existing studio record.
-
-        Args:
-            studio_id (int): The ID of the studio to update.
-            studio_name (str): The new name of the studio.
-        """
-        studio = self.read_studio(studio_id)
-        if studio:
-            studio.studio_name = studio_name
-            self.session.commit()
-
-    def delete_studio(self, studio_id: int):
-        """
-        Deletes a studio record by ID.
-
-        Args:
-            studio_id (int): The ID of the studio to delete.
-        """
-        studio = self.read_studio(studio_id)
-        if studio:
-            self.session.delete(studio)
-            self.session.commit()
-
     # -------- CRUD Operations for Movie and Associations --------
     def create_movie(self, movie_name: str, release_date: Optional[str] = None, summary: Optional[str] = None):
         """
@@ -306,3 +248,15 @@ class MovieService(Service):
             list[str]: A list of distinct studio names.
         """
         return [s.studio_name for s in self.session.query(Studio.studio_name).distinct()]
+
+    def get_id_by_name(self, movie_name: str) -> int:
+        """
+        get movie_id by name.
+
+        Args:
+            movie_name (str): The name of the movie to search for.
+
+        Returns:
+            movie_id: as int
+        """
+        return self.session.query(Movie).filter(Movie.movie_name == movie_name).all()[0].movie_id

@@ -81,3 +81,22 @@ class UserService(Service):
         if user:
             self.session.delete(user)
             self.session.commit()
+    
+    def verify_user(self, user_name: str, password: str) -> bool:
+        # Query the user with matching username and password
+        user = self.session.query(User).filter_by(user_name = user_name, password = password).first()
+    
+        # Return True if a matching user is found, else return False
+        return user is not None
+
+    def get_id_by_name(self, user_name: str) -> int:
+        """
+        get user_id by name.
+
+        Args:
+            user_name (str): The name of the user to search for.
+
+        Returns:
+            user_id: as int
+        """
+        return self.session.query(User).filter(User.user_name == user_name).all()[0].user_id
