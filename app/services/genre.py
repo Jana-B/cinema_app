@@ -64,3 +64,20 @@ class GenreService(Service):
         if genre:
             self.session.delete(genre)
             self.session.commit()
+            
+    def query_by_name(self, genre_name: str, exact_match: bool = False) -> pd.DataFrame:
+        """
+        Queries genres by name.
+
+        Args:
+            genre_name (str): The name or partial name of the genre to search for.
+            exact_match (bool): Whether to perform an exact match. Defaults to False.
+
+        Returns:
+            pd.DataFrame: DataFrame containing the query results.
+        """
+        if exact_match:
+            return self.to_dataframe(self.session.query(Genre).filter(Genre.genre_name == genre_name).all())
+        else:
+            search_pattern = f"%{genre_name}%"
+            return self.to_dataframe(self.session.query(Genre).filter(Genre.genre_name.ilike(search_pattern)).all())
