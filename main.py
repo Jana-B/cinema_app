@@ -1,5 +1,5 @@
 import streamlit as st
-from app.views import movie_search, movie_details
+from app.views import movie_search, movie_details, user_management
 
 def main():
     try:
@@ -13,14 +13,15 @@ def main():
         
     st.sidebar.title("Navigation")
     selected_page = st.sidebar.radio("Go to", [
-        "Movie Search", "User Creation", "Movie Rating", "Watchlist", "Personal List", "Profile"
+        "Movie Search", "User Profile", "Movie Rating", "Watchlist", "Personal List", "Profile"
     ])
 
     if selected_page == "Movie Search":
         movie_search.show_movie_search_page()
-    elif selected_page == "User Creation":
-        # user_creation.show_user_creation_page()
-        pass
+        
+    elif selected_page == "User Profile":
+        user_management.show_user_management_page()
+        
     elif selected_page == "Movie Rating":
         # movie_rating.show_movie_rating_page()
         pass

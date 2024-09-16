@@ -1,14 +1,13 @@
 from db.movie_app_db import User
 import pandas as pd
 from typing import Optional
-
-
+from datetime import date
 from app.services.base_types import Service
 
 
 class UserService(Service):
     
-    def create_user(self, user_name: str, birthdate: str, password: str, e_mail: str):
+    def create_user(self, user_name: str, birthdate: date, password: str, e_mail: str):
         """
         Creates a new user record.
 
@@ -46,7 +45,7 @@ class UserService(Service):
             pd.DataFrame: DataFrame containing all user records.
         """
         users = self.session.query(User).all()
-        return self.to_dataframe(users)
+        return self.to_dataframe(users).drop(columns =["_sa_instance_state"])
 
     def update_user(self, user_id: int, user_name: Optional[str] = None, birthdate: Optional[str] = None, password: Optional[str] = None, e_mail: Optional[str] = None):
         """

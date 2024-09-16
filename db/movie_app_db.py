@@ -19,7 +19,7 @@ class User(Base):
     user_name = Column(String, nullable=False, unique=True)
     user_birthdate = Column(Date, nullable=False)
     password = Column(String, nullable=False)
-    e_mail = Column(String, nullable=False)
+    e_mail = Column(String, nullable=False, unique=True)
 
     # Relationships with Mylist and WatchHistory
     mylist = relationship('Mylist', back_populates='user')

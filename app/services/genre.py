@@ -81,3 +81,15 @@ class GenreService(Service):
         else:
             search_pattern = f"%{genre_name}%"
             return self.to_dataframe(self.session.query(Genre).filter(Genre.genre_name.ilike(search_pattern)).all())
+        
+    def get_id_by_name(self, genre_name: str) -> int:
+        """
+        get genre_id by name.
+
+        Args:
+            genre_name (str): The name of the genre to search for.
+
+        Returns:
+            genre_id: as int
+        """
+        return self.session.query(Genre).filter(Genre.genre_name == genre_name).all()[0].genre_id
