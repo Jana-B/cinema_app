@@ -3,13 +3,9 @@ from app.views import movie_search, movie_details, user_management
 from app.services.user import UserService
 
 def main():
-    try:
-        page = st.query_params.page
-        movie_id = st.query_params.movie_id
-    except Exception as e:                
-        page = None
-        movie_id = None
-        
+    page, movie_id = get_page_movie_id()
+    
+    user_id = get_session_user_id()   
         
         
     st.sidebar.title("Navigation")
@@ -39,7 +35,7 @@ def main():
     ])
 
     if selected_page == "Movie Search":
-        movie_search.show_movie_search_page()
+        movie_search.show_movie_search_page(user_id=user_id)
         
     elif selected_page == "User Profile":
         user_management.show_user_management_page()
@@ -58,9 +54,25 @@ def main():
         pass
     
     # Check for movie_details page in query parameters
-    if page == "movie_details":
-        # integrate movie_id into interface....
-        movie_details.show_movie_details_page(movie_id)
+    if page == "movie_details":       
+        movie_details.show_movie_details_page(movie_id, user_id)
+
+def get_page_movie_id():
+    try:
+        page = st.query_params.page
+        movie_id = st.query_params.movie_id
+    except Exception as e:                
+        page = None
+        movie_id = None
+    return page,movie_id
+
+def get_session_user_id():
+    if 'user_id' in  st.session_state:
+        user_id = st.session_state.user_id
+    else:
+        user_id = 0
+        
+    return user_id
         
         
 

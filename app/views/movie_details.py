@@ -2,12 +2,11 @@ import streamlit as st
 import pandas as pd
 from app.services.movie import MovieService
 
-def show_movie_details_page(movie_id: int):
+def show_movie_details_page(movie_id: int, user_id: int):
     # Instantiate the MovieService
     movie_service = MovieService()
-
-    if 'user_id' in st.session_state:
-        user_id = st.session_state['user_id']
+    
+    st.session_state['user_id'] = user_id
 
     if movie_id:
         # Convert movie_id to a DataFrame (MovieService expects a DataFrame)
