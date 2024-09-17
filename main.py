@@ -3,12 +3,19 @@ from app.views import movie_search, movie_details, user_management
 from app.services.user import UserService
 
 def main():
-    page, movie_id = get_page_movie_id()
+    user_service = UserService()
     
-    user_id = get_session_user_id()   
-        
-        
+    page, movie_id, user_id = get_query_parmeter()
+       
+    if user_id == 0:
+        user_id = get_session_user_id()   
+    
+    
     st.sidebar.title("Navigation")
+    
+    if user_id != 0:        
+        user = user_service.read_user(user_id)
+        st.sidebar.write(f"User: {user.user_name}")    
     
     # Input fields for user_name and password
     user_name = st.sidebar.text_input("User", placeholder="Enter your user name")
@@ -18,8 +25,7 @@ def main():
     login_button = st.sidebar.button("Login")
 
     # Logic to execute when login button is clicked
-    if login_button:
-        user_service = UserService()
+    if login_button:        
         if user_name and password and user_service.verify_user(user_name=user_name, password=password):
             user_id = user_service.get_id_by_name(user_name)
             st.session_state["user_id"] = user_id
@@ -27,7 +33,7 @@ def main():
             st.sidebar.success("Login successful!")
         else:
             st.sidebar.error("User name or password not vallid")
-    elif 'user_id' not in st.session_state:
+    elif user_id == 0:
         st.sidebar.error("Please enter both email and password.")
         
     selected_page = st.sidebar.radio("Go to", [
@@ -57,14 +63,20 @@ def main():
     if page == "movie_details":       
         movie_details.show_movie_details_page(movie_id, user_id)
 
-def get_page_movie_id():
+def get_query_parmeter():
+    try:
+        user_id = int(st.query_params.user_id)
+    except Exception as e:                
+        user_id = 0        
+    
     try:
         page = st.query_params.page
-        movie_id = st.query_params.movie_id
+        movie_id = int(st.query_params.movie_id)
     except Exception as e:                
-        page = None
-        movie_id = None
-    return page,movie_id
+        page = ''
+        movie_id = 0
+                
+    return page,movie_id,user_id
 
 def get_session_user_id():
     if 'user_id' in  st.session_state:

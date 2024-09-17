@@ -36,12 +36,12 @@ class MovieService(Service):
     
     
 
-    def query_by_genre(self, genre_name: str) -> pd.DataFrame:
+    def query_by_genre(self, genre_names: List[str]) -> pd.DataFrame:
         """
-        Queries movies by genre.
+        Queries movies by a list of genres.
 
         Args:
-            genre_name (str): The name of the genre.
+            genre_names (List[str]): A list of genre names.
 
         Returns:
             pd.DataFrame: DataFrame containing the query results.
@@ -50,9 +50,10 @@ class MovieService(Service):
             self.session.query(Movie)
             .join(MovieGenre)
             .join(Genre)
-            .filter(Genre.genre_name == genre_name)
+            .filter(Genre.genre_name.in_(genre_names))
             .all()
         ))
+
 
     def query_by_release_date(self, start_date: Optional[str] = None, end_date: Optional[str] = None) -> List[Movie]:
         """

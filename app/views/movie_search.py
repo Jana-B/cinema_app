@@ -46,7 +46,6 @@ import pandas as pd
 from app.services.movie import MovieService 
 from app.services.mylist import MylistService 
 from app.services.watchhistory import WatchHistoryService 
-from app.services.user import UserService 
 from datetime import datetime
 
 
@@ -85,7 +84,7 @@ def show_movie_search_page(user_id: int):
         result_sets = execute_queries(movie_service, search_query, selected_genres, selected_persons, selected_studios, selected_keywords)
 
         # Find the intersection of all result sets (common movies across filters)
-        if not result_sets[0].empty:
+        if result_sets and not result_sets[0].empty:
             filtered_movies_df = intersect_results(result_sets)
 
             # Display Results
