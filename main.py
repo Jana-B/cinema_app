@@ -31,7 +31,7 @@ def main():
             st.sidebar.success("Login successful!")
         else:
             st.sidebar.error("User name or password not vallid")
-    else:
+    elif 'user_id' not in st.session_state:
         st.sidebar.error("Please enter both email and password.")
         
     selected_page = st.sidebar.radio("Go to", [

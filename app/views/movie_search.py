@@ -98,10 +98,16 @@ def show_movie_search_page():
                 
                 filtered_movies_df["in_watch_history"] = watch_history_service.is_in_watchhistory(user_id=user_id,movie_ids=filtered_movies_df["movie_id"]) 
                 filtered_movies_df["in_mylist"] = mylist_service.is_in_mylist(user_id=user_id,movie_ids=filtered_movies_df["movie_id"])         
-                display_search_result(filtered_movies_df)      
+                display_search_result(filtered_movies_df) 
+                
+                st.session_state['last_search_result'] = filtered_movies_df                                
             
             else:
                 st.write("No movies found with the selected criteria.")
+                
+                
+    elif 'last_search_result' in st.session_state:
+        display_search_result(st.session_state['last_search_result'])
     
    
 
