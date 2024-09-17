@@ -45,7 +45,13 @@ class UserService(Service):
             pd.DataFrame: DataFrame containing all user records.
         """
         users = self.session.query(User).all()
-        return self.to_dataframe(users).drop(columns =["_sa_instance_state"])
+        
+        
+        if users:
+            return self.to_dataframe(users).drop(columns =["_sa_instance_state"])
+        else:
+            return pd.DataFrame()
+        
 
     def update_user(self, user_id: int, user_name: Optional[str] = None, birthdate: Optional[str] = None, password: Optional[str] = None, e_mail: Optional[str] = None):
         """
