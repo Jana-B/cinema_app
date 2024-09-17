@@ -96,8 +96,8 @@ def show_movie_search_page():
                 user_name = st.session_state["user_name"]
                 user_id = user_service.get_id_by_name(user_name)
                 
-                filtered_movies_df["is_in_watch_history"] = watch_history_service.is_in_watchhistory(user_id=user_id,movie_ids=filtered_movies_df["movie_id"])["is_in_watch_history"]  
-                filtered_movies_df["is_in_mylist"] = mylist_service.is_in_mylist(user_id=user_id,movie_ids=filtered_movies_df["movie_id"])["is_in_mylist"]          
+                filtered_movies_df["in_watch_history"] = watch_history_service.is_in_watchhistory(user_id=user_id,movie_ids=filtered_movies_df["movie_id"]) 
+                filtered_movies_df["in_mylist"] = mylist_service.is_in_mylist(user_id=user_id,movie_ids=filtered_movies_df["movie_id"])         
                 display_search_result(filtered_movies_df)      
             
             else:
@@ -139,6 +139,8 @@ def display_search_result(filtered_movies_df):
     # Initialize an empty string to hold the HTML content
     html_content = ""
 
+    user_id = st.session_state['user_id']
+    
     # Iterate through the DataFrame and create HTML content
     for movie in filtered_movies_df.itertuples():
         movie_details_url = f"/?page=movie_details&movie_id={movie.movie_id}"
@@ -150,25 +152,25 @@ def display_search_result(filtered_movies_df):
         </div>
         """
          # Display the checkboxes for "Mylist" and "Watchhistory"
-        is_in_mylist = st.checkbox(f"Add {movie.movie_name} to Mylist", value=movie.is_in_mylist, key=f"mylist_{movie.movie_id}")
-        is_in_watch_history = st.checkbox(f"Add {movie.movie_name} to Watchhistory", value=movie.is_in_watch_history, key=f"watchhistory_{movie.movie_id}")
+        is_in_mylist = st.checkbox(f"Add {movie.movie_name} to Mylist", value=movie.in_mylist, key=f"mylist_{movie.movie_id}")
+        is_in_watch_history = st.checkbox(f"Add {movie.movie_name} to Watchhistory", value=movie.in_watch_history, key=f"watchhistory_{movie.movie_id}")
 
         # Handle the logic for "Mylist" checkbox
-        if is_in_mylist and not movie.is_in_mylist:
+        if is_in_mylist and not movie.in_mylist:
             # Call the function to add the movie to Mylist
             mylist_service.create_mylist(user_id=user_id, movie_id=movie.movie_id)
             st.success(f"Added {movie.movie_name} to your Mylist.")
-        elif not is_in_mylist and movie.is_in_mylist:
+        elif not is_in_mylist and movie.in_mylist:
             # Hier könnte man eine Funktion hinzufügen, um den Film aus der Mylist zu entfernen, wenn gewünscht
             pass
 
         # Handle the logic for "Watchhistory" checkbox
-        if is_in_watch_history and not movie.is_in_watch_history:
+        if is_in_watch_history and not movie.in_watch_history:
             # Call the function to add the movie to Watchhistory
             current_date = datetime.now().strftime('%Y-%m-%d')  # Get the current date as a string
             watch_history_service.create_watch_history(user_id=user_id, movie_id=movie.movie_id, watch_date=current_date)
             st.success(f"Added {movie.movie_name} to your Watchhistory.")
-        elif not is_in_watch_history and movie.is_in_watch_history:
+        elif not is_in_watch_history and movie.in_watch_history:
             # Hier könnte man eine Funktion hinzufügen, um den Film aus der Watchhistory zu entfernen, wenn gewünscht
             pass
 
@@ -202,4 +204,7 @@ def intersect_results(result_sets):
 
     # Combine the filtered DataFrames into one
     combined_movies = pd.concat(filtered_dfs).drop_duplicates(subset="movie_id")
+    
+    combined_movies.index = combined_movies['movie_id']
+    combined_movies.drop(columns='_sa_instance_state', inplace=True)
     return combined_movies

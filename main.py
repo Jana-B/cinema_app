@@ -25,6 +25,8 @@ def main():
     if login_button:
         user_service = UserService()
         if user_name and password and user_service.verify_user(user_name=user_name, password=password):
+            user_id = user_service.get_id_by_name(user_name)
+            st.session_state["user_id"] = user_id
             st.session_state["user_name"] = user_name
             st.sidebar.success("Login successful!")
         else:

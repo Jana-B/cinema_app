@@ -14,7 +14,7 @@ def show_user_management_page():
     if action == "Create User":
         st.header("Create a New User")
         user_name = st.text_input("User Name")
-        birthdate = st.date_input(label= "Birthdate", min_value=date(1900,1,1),max_value=date(2017,1,1))
+        birthdate = st.date_input(label= "Birthdate", min_value=date(1900,1,1), max_value = date(2017,1,1), value = None)
         password = st.text_input("Password", type="password")
         email = st.text_input("Email")
         
