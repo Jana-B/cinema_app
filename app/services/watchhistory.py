@@ -99,3 +99,15 @@ class WatchHistoryService(Service):
 
         # Convert the results into a Pandas Series
         return pd.Series(results, index=movie_ids, name='in_watch_history')
+
+
+    def read_user_watch_history(self, user_id: int) -> Optional[WatchHistory]:
+        """
+        Retrieves a watch history record by user ID and movie ID.
+
+        Args:
+            user_id (int): The ID of the user.        
+        Returns:
+            Optional[WatchHistory]: The WatchHistory object with the specified IDs, or None if not found.
+        """
+        return self.to_dataframe(self.session.query(WatchHistory).filter_by(user_id=user_id))

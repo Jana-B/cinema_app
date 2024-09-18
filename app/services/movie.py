@@ -169,7 +169,29 @@ class MovieService(Service):
             Optional[Movie]: The Movie object with the specified ID, or None if not found.
         """        
         return self.session.get(Movie, movie_id)
+    
+    
+    def read_movie_names(self, movie_ids: pd.Series) -> pd.Series:
+        """
+        Retrieves movie names by their IDs.
 
+        Args:
+            movie_ids (pd.Series): A Series of movie IDs.
+
+        Returns:
+            pd.Series: A Series of movie names corresponding to the given movie IDs.
+        """
+        # Query the database for the movies with the specified IDs
+        movies = self.session.query(Movie).filter(Movie.movie_id.in_(movie_ids)).all()
+        
+        # Create a dictionary mapping movie_id to movie_name
+        movie_dict = {movie.movie_id: movie.movie_name for movie in movies}
+        
+        # Map the movie IDs to their names using the dictionary
+        movie_names = movie_ids.map(movie_dict)
+        
+        return movie_names
+    
 
     def read_all_movies(self) -> pd.DataFrame:
         """

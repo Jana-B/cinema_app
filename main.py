@@ -1,11 +1,11 @@
 import streamlit as st
-from app.views import movie_search, movie_details, user_management
+from app.views import movie_search, movie_details, user_management, watch_history
 from app.services.user import UserService
 
 def main():
     user_service = UserService()
     
-    page, movie_id, user_id = get_query_parmeter()
+    selected_sub_page, movie_id, user_id = get_query_parmeter()
        
     if user_id == 0:
         user_id = get_session_user_id()   
@@ -37,7 +37,7 @@ def main():
         st.sidebar.error("Please enter both email and password.")
         
     selected_page = st.sidebar.radio("Go to", [
-        "Movie Search", "User Profile", "Movie Rating", "Watchlist", "Personal List", "Profile"
+        "Movie Search", "User Profile", "Movie Rating", "Watch History", "Personal List", "Profile"
     ])
 
     if selected_page == "Movie Search":
@@ -49,9 +49,8 @@ def main():
     elif selected_page == "Movie Rating":
         # movie_rating.show_movie_rating_page()
         pass
-    elif selected_page == "Watchlist":
-        # watchlist.show_watchlist_page()
-        pass
+    elif selected_page == "Watch History":
+        watch_history.show_watch_history_page(user_id)        
     elif selected_page == "Personal List":
         # personal_list.show_personal_list_page()
         pass
@@ -60,7 +59,7 @@ def main():
         pass
     
     # Check for movie_details page in query parameters
-    if page == "movie_details":       
+    if selected_sub_page == "movie_details":       
         movie_details.show_movie_details_page(movie_id, user_id)
 
 def get_query_parmeter():
