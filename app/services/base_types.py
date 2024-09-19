@@ -33,12 +33,5 @@ class Service:
         Returns:
             pd.DataFrame: DataFrame containing the data from the objects.
         """
-        data = [obj.__dict__ for obj in object_list]
-        
-        df = pd.DataFrame(data)
-        
-        if '_sa_instance_state' in df.columns:
-            df.drop(['_sa_instance_state', 'user_id'], axis=1, inplace=True)
-
-        
-        return df
+        data = [obj.__dict__ for obj in object_list]        
+        return pd.DataFrame(data)        

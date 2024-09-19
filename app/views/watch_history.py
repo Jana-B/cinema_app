@@ -3,6 +3,26 @@ import pandas as pd
 from app.services.watchhistory import WatchHistoryService
 from app.services.movie import MovieService
 
+def show_dataframe_with_buttons(df):
+    # Display the DataFrame in the data editor
+    edited_df = st.data_editor(df, hide_index=False)
+    
+    # Create a button for each row outside of st.data_editor
+    st.write("Actions:")
+    for index, row in edited_df.iterrows():
+        if st.button(f"Action for {row['Name']}", key=index):
+            st.write(f"Button clicked for {row['Name']}")
+
+            # Example action: you could process this row further or update the DataFrame
+            # For instance, you could add a new column based on the button click:
+            # edited_df.loc[index, 'Action'] = 'Clicked'
+
+    # Display the updated DataFrame
+    st.write("Updated DataFrame:")
+    st.write(edited_df)
+
+
+
 def show_watch_history_page(user_id: int):        
     watch_history_service = WatchHistoryService()
     movie_service = MovieService()
@@ -14,14 +34,14 @@ def show_watch_history_page(user_id: int):
     # Display relevant columns for editing
     display_df = user_watch_history_df[['movie_name', 'watch_date', 'rating', 'is_favorite']].copy()    
 
-    edit_df = st.data_editor(data=display_df,hide_index=True)
+    edit_df = st.data_editor(display_df, hide_index=True)
 
     # Check for differences between the original and edited DataFrame
-    if not edit_df.equals(st.session_state.edit_df) and st.button("Update Watch History"):
+    if not edit_df.equals(display_df) and st.button("Update Watch History"):
         st.write("Changes detected!")
 
         # Find the differences between the DataFrames
-        df_diff = edit_df.compare(st.session_state.edit_df)
+        df_diff = edit_df.compare(display_df)
 
         # Update the database with changes
         for index, row in df_diff.iterrows():
@@ -42,6 +62,4 @@ def show_watch_history_page(user_id: int):
             )
 
         st.success("Watch history updated successfully!")
-        
-        # Refresh the session state to reflect the changes
-        st.session_state.edit_df = edit_df
+    
