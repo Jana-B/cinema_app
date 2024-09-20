@@ -1,13 +1,13 @@
 from db.movie_app_db import WatchHistory
 import pandas as pd
 from typing import Optional
-
+import sqlite3
 from app.services.base_types import Service
 
 
 
 class WatchHistoryService(Service):
-    def create_watch_history(self, user_id: int, movie_id: int, watch_date: str, rating: Optional[float] = None, is_favorite: bool = False):
+    def create_watch_history(self, user_id: int, movie_id: int, watch_date: Optional[str] = None, rating: Optional[float] = None, is_favorite: bool = False):
         """
         Creates a new watch history record.
 
@@ -45,13 +45,14 @@ class WatchHistoryService(Service):
         histories = self.session.query(WatchHistory).all()
         return self.to_dataframe(histories)
 
-    def update_watch_history(self, user_id: int, movie_id: int, rating: Optional[float] = None, is_favorite: Optional[bool] = None):
+    def update_watch_history(self, user_id: int, movie_id: int, watch_date: Optional[str] = None, rating: Optional[float] = None, is_favorite: Optional[bool] = None):
         """
         Updates an existing watch history record.
 
         Args:
             user_id (int): The ID of the user.
             movie_id (int): The ID of the movie.
+            watch_date(str): The date string when the movie has been watched.
             rating (Optional[float]): The new rating of the movie. Defaults to None.
             is_favorite (Optional[bool]): Whether the movie is marked as a favorite. Defaults to None.
         """
@@ -61,6 +62,8 @@ class WatchHistoryService(Service):
                 watch_history.rating = rating
             if is_favorite is not None:
                 watch_history.is_favorite = is_favorite
+            if watch_date is not None:
+                watch_history.watch_date = watch_date
             self.session.commit()
 
     def delete_watch_history(self, user_id: int, movie_id: int):
@@ -75,6 +78,45 @@ class WatchHistoryService(Service):
         if watch_history:
             self.session.delete(watch_history)
             self.session.commit()
+            
+            
+    def delete_complete_watch_history(self,user_id: int):
+        """
+        Deletes the complete watch history of a user from the watch_history table.
+
+        Args:
+            user_id (int): The ID of the user.
+        """
+        # Connect to the SQLite database (or create it if it doesn't exist)
+        conn = sqlite3.connect('movie_app.db')
+        
+        try:
+            # Create a cursor object to execute SQL commands
+            cursor = conn.cursor()
+
+            # SQL query to delete all watch history records for the given user_id
+            delete_query = """
+            DELETE FROM watch_history
+            WHERE user_id = ?;
+            """
+            
+            # Execute the query, passing the user_id as a parameter to prevent SQL injection
+            cursor.execute(delete_query, (user_id,))
+
+            # Commit the changes to the database
+            conn.commit()
+
+            # Check how many rows were affected (optional)
+            print(f"Deleted {cursor.rowcount} rows from watch_history.")
+        
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
+            # Rollback in case of error
+            conn.rollback()
+
+        finally:
+            # Close the connection to the database
+            conn.close()
     
     def is_in_watchhistory(self, user_id: int, movie_ids: pd.Series) -> pd.Series:
         """

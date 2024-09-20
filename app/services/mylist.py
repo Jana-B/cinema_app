@@ -32,6 +32,19 @@ class MylistService(Service):
         """
         return self.session.query(Mylist).filter_by(user_id=user_id, movie_id=movie_id).first()
 
+    
+    def read_user_mylist(self, user_id: int) -> pd.DataFrame:
+        """
+        Retrieves all mylist records by user ID.
+
+        Args:
+            user_id (int): The ID of the user.        
+        Returns:
+            pd.DataFrame: dataframe with mylist result for user_id.
+        """
+        return self.to_dataframe(self.session.query(Mylist).filter_by(user_id=user_id))
+
+
     def read_all_mylists(self) -> pd.DataFrame:
         """
         Retrieves all mylist records.
@@ -54,6 +67,7 @@ class MylistService(Service):
         if mylist:
             self.session.delete(mylist)
             self.session.commit()
+                        
     
     def is_in_mylist(self, user_id: int, movie_ids: pd.Series) -> pd.Series:
         """
