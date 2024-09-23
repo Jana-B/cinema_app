@@ -1,5 +1,5 @@
 import streamlit as st
-from app.views import movie_search, movie_details, user_management, watch_history
+from app.views import movie_search, movie_details, my_lists, user_management
 from app.services.user import UserService
 
 def main():
@@ -34,29 +34,20 @@ def main():
         else:
             st.sidebar.error("User name or password not vallid")
     elif user_id == 0:
-        st.sidebar.error("Please enter both email and password.")
+        st.sidebar.error("Please enter both user and password.")
         
     selected_page = st.sidebar.radio("Go to", [
-        "Movie Search", "User Profile", "Movie Rating", "Watch History", "Personal List", "Profile"
+        "Movie Search", "User Profile", "My Lists",
     ])
 
     if selected_page == "Movie Search":
         movie_search.show_movie_search_page(user_id=user_id)
         
     elif selected_page == "User Profile":
-        user_management.show_user_management_page()
-        
-    elif selected_page == "Movie Rating":
-        # movie_rating.show_movie_rating_page()
-        pass
-    elif selected_page == "Watch History":
-        watch_history.show_watch_history_page(user_id)        
-    elif selected_page == "Personal List":
-        # personal_list.show_personal_list_page()
-        pass
-    elif selected_page == "Profile":
-        # profile.show_profile_page()
-        pass
+        user_management.show_user_management_page()           
+         
+    elif selected_page == "My Lists":
+        my_lists.show_my_lists_page(user_id)            
     
     # Check for movie_details page in query parameters
     if selected_sub_page == "movie_details":       
