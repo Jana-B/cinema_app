@@ -1,11 +1,45 @@
+"""
+movie_details.py
+
+This module defines a function to display the details of a specific movie in a Streamlit web application. 
+The function fetches movie details based on a given movie ID and displays them to the user.
+
+Functions:
+----------
+1. **show_movie_details_page(movie_id: int, user_id: int)**:
+    Displays the details of a movie including its name, release date, genres, studios, credits, keywords, 
+    and summary.
+
+Dependencies:
+-------------
+- Streamlit: Used for building the web application interface.
+- Pandas: Used for handling data in DataFrame format.
+- MovieService: A service that provides methods to fetch movie-related data.
+"""
+
 import streamlit as st
 import pandas as pd
 from app.services.movie import MovieService
 
 def show_movie_details_page(movie_id: int, user_id: int):
+    """
+    Displays the details of a specified movie.
+
+    Parameters:
+        movie_id (int): The unique identifier of the movie whose details are to be displayed.
+        user_id (int): The unique identifier of the user requesting the movie details.
+
+    This function does the following:
+    - Initializes the MovieService to interact with the movie database.
+    - Checks if a valid movie_id is provided.
+    - Fetches the movie details by converting the movie_id into a DataFrame.
+    - Displays the movie's details if found; otherwise, it shows an error message.
+    """
+    
     # Instantiate the MovieService
     movie_service = MovieService()
     
+    # Store user_id in session state
     st.session_state['user_id'] = user_id
 
     if movie_id:

@@ -1,43 +1,68 @@
-from db.movie_app_db import WatchHistory
 import pandas as pd
-from typing import Optional
 import sqlite3
+from typing import Optional, List
+from db.movie_app_db import WatchHistory
 from app.services.base_types import Service
 
 
-
 class WatchHistoryService(Service):
-    def create_watch_history(self, user_id: int, movie_id: int, watch_date: Optional[str] = None, rating: Optional[float] = None, is_favorite: bool = False):
+    """
+    Service for managing user watch history in the movie application.
+    
+    This service provides CRUD operations for interacting with the watch history table in the database,
+    such as creating, reading, updating, and deleting watch history entries.
+    """
+
+    def create_watch_history(
+        self, user_id: int, movie_id: int, watch_date: Optional[str] = None,
+        rating: Optional[float] = None, is_favorite: bool = False
+    ):
         """
         Creates a new watch history record.
 
         Args:
             user_id (int): The ID of the user.
             movie_id (int): The ID of the movie.
-            watch_date (str): The date the movie was watched.
+            watch_date (Optional[str]): The date the movie was watched. Defaults to None.
             rating (Optional[float]): The rating given to the movie. Defaults to None.
             is_favorite (bool): Whether the movie is marked as a favorite. Defaults to False.
         """
-        new_watch_history = WatchHistory(user_id=user_id, movie_id=movie_id, watch_date=watch_date, rating=rating, is_favorite=is_favorite)
+        new_watch_history = WatchHistory(
+            user_id=user_id, movie_id=movie_id, watch_date=watch_date, 
+            rating=rating, is_favorite=is_favorite
+        )
         self.session.add(new_watch_history)
         self.session.commit()
 
     def read_watch_history(self, user_id: int, movie_id: int) -> Optional[WatchHistory]:
         """
-        Retrieves a watch history record by user ID and movie ID.
+        Retrieves a specific watch history record by user ID and movie ID.
 
         Args:
             user_id (int): The ID of the user.
             movie_id (int): The ID of the movie.
 
         Returns:
-            Optional[WatchHistory]: The WatchHistory object with the specified IDs, or None if not found.
+            Optional[WatchHistory]: The watch history record or None if not found.
         """
         return self.session.query(WatchHistory).filter_by(user_id=user_id, movie_id=movie_id).first()
 
+    def read_user_watch_history(self, user_id: int) -> pd.DataFrame:
+        """
+        Retrieves all watch history records for a specific user.
+
+        Args:
+            user_id (int): The ID of the user.
+
+        Returns:
+            pd.DataFrame: DataFrame containing the user's watch history.
+        """
+        histories = self.session.query(WatchHistory).filter_by(user_id=user_id).all()
+        return self.to_dataframe(histories)
+
     def read_all_watch_histories(self) -> pd.DataFrame:
         """
-        Retrieves all watch history records.
+        Retrieves all watch history records for all users.
 
         Returns:
             pd.DataFrame: DataFrame containing all watch history records.
@@ -45,15 +70,18 @@ class WatchHistoryService(Service):
         histories = self.session.query(WatchHistory).all()
         return self.to_dataframe(histories)
 
-    def update_watch_history(self, user_id: int, movie_id: int, watch_date: Optional[str] = None, rating: Optional[float] = None, is_favorite: Optional[bool] = None):
+    def update_watch_history(
+        self, user_id: int, movie_id: int, watch_date: Optional[str] = None,
+        rating: Optional[float] = None, is_favorite: Optional[bool] = None
+    ):
         """
         Updates an existing watch history record.
 
         Args:
             user_id (int): The ID of the user.
             movie_id (int): The ID of the movie.
-            watch_date(str): The date string when the movie has been watched.
-            rating (Optional[float]): The new rating of the movie. Defaults to None.
+            watch_date (Optional[str]): The updated watch date. Defaults to None.
+            rating (Optional[float]): The updated rating. Defaults to None.
             is_favorite (Optional[bool]): Whether the movie is marked as a favorite. Defaults to None.
         """
         watch_history = self.read_watch_history(user_id, movie_id)
@@ -68,7 +96,7 @@ class WatchHistoryService(Service):
 
     def delete_watch_history(self, user_id: int, movie_id: int):
         """
-        Deletes a watch history record by user ID and movie ID.
+        Deletes a specific watch history record by user ID and movie ID.
 
         Args:
             user_id (int): The ID of the user.
@@ -78,78 +106,37 @@ class WatchHistoryService(Service):
         if watch_history:
             self.session.delete(watch_history)
             self.session.commit()
-            
-            
-    def delete_complete_watch_history(self,user_id: int):
+
+    def delete_complete_watch_history(self, user_id: int):
         """
-        Deletes the complete watch history of a user from the watch_history table.
+        Deletes all watch history records for a given user from the database.
 
         Args:
             user_id (int): The ID of the user.
         """
-        # Connect to the SQLite database (or create it if it doesn't exist)
         conn = sqlite3.connect('movie_app.db')
-        
         try:
-            # Create a cursor object to execute SQL commands
             cursor = conn.cursor()
-
-            # SQL query to delete all watch history records for the given user_id
-            delete_query = """
-            DELETE FROM watch_history
-            WHERE user_id = ?;
-            """
-            
-            # Execute the query, passing the user_id as a parameter to prevent SQL injection
-            cursor.execute(delete_query, (user_id,))
-
-            # Commit the changes to the database
+            cursor.execute("DELETE FROM watch_history WHERE user_id = ?", (user_id,))
             conn.commit()
-
-            # Check how many rows were affected (optional)
             print(f"Deleted {cursor.rowcount} rows from watch_history.")
-        
         except sqlite3.Error as e:
             print(f"An error occurred: {e}")
-            # Rollback in case of error
             conn.rollback()
-
         finally:
-            # Close the connection to the database
             conn.close()
-    
+
     def is_in_watchhistory(self, user_id: int, movie_ids: pd.Series) -> pd.Series:
         """
-        Checks if a series of movies is in the user's WatchHistory.
+        Checks if a series of movie IDs is in the user's watch history.
 
         Args:
             user_id (int): The ID of the user.
-            movie_ids (pd.Series): The IDs of the movies.
+            movie_ids (pd.Series): A series of movie IDs to check.
 
         Returns:
-            pd.Series: A boolean Series indicating whether each movie is in the user's watch history.
+            pd.Series: A boolean series indicating whether each movie is in the user's watch history.
         """
-        results = []
+        results = movie_ids.apply(lambda movie_id: self.read_watch_history(user_id, movie_id) is not None)
+        return results.rename('in_watch_history')
 
-        # Iterate over each movie_id in the Series
-        for movie_id in movie_ids:
-            # Query the database to check if the movie is in the user's watch history
-            movie_in_watchhistory = self.session.query(WatchHistory).filter_by(user_id=user_id, movie_id=movie_id).first() is not None
-            
-            # Append the result (boolean)
-            results.append(movie_in_watchhistory)
-
-        # Convert the results into a Pandas Series
-        return pd.Series(results, index=movie_ids, name='in_watch_history')
-
-
-    def read_user_watch_history(self, user_id: int) -> Optional[WatchHistory]:
-        """
-        Retrieves a watch history record by user ID and movie ID.
-
-        Args:
-            user_id (int): The ID of the user.        
-        Returns:
-            Optional[WatchHistory]: The WatchHistory object with the specified IDs, or None if not found.
-        """
-        return self.to_dataframe(self.session.query(WatchHistory).filter_by(user_id=user_id))
